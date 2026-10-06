@@ -1,0 +1,15 @@
+venv/
+dataset/
+__pycache__/
+*.pyc
+.streamlit/
+*.mid
+*.tmp
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+models/notes.pkl
+models/sequences.npy
