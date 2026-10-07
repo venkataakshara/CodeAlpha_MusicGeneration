@@ -15,6 +15,9 @@ sequence = data[0].copy()
 
 generated_notes = []
 
+# Starting time for generated music
+current_time = 0.0
+
 # Generate 100 notes
 for i in range(100):
 
@@ -30,6 +33,7 @@ for i in range(100):
         verbose=0
     )[0]
 
+    # Generate pitch
     pitch = int(
         np.clip(
             round(prediction[0]),
@@ -38,32 +42,43 @@ for i in range(100):
         )
     )
 
+    # Generate velocity
     velocity = int(
         np.clip(
             round(prediction[1]),
-            1,
-            127
+            40,
+            110
         )
     )
 
-    start_time = float(prediction[2])
-    end_time = float(prediction[3])
+    # Use a controlled note duration
+    note_duration = 0.5
 
-    if end_time <= start_time:
-        end_time = start_time + 0.5
+    start_time = current_time
+    end_time = start_time + note_duration
 
     generated_notes.append(
         (pitch, velocity, start_time, end_time)
     )
 
+    # Create new sequence entry
     new_note = np.array(
-        [pitch, velocity, start_time, end_time],
+        [
+            pitch,
+            velocity,
+            start_time,
+            end_time
+        ],
         dtype=np.float32
     )
 
     sequence = np.vstack(
         [sequence[1:], new_note]
     )
+
+    # Move forward continuously
+    current_time = end_time
+
 
 # Create MIDI file
 midi = pretty_midi.PrettyMIDI()
@@ -92,4 +107,5 @@ midi.write(output_file)
 
 print("\nMusic generation completed!")
 print("Generated notes:", len(generated_notes))
+print("Music duration:", current_time, "seconds")
 print("Saved to:", output_file)
